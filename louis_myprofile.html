@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidature Interactive - Louis Lantonnet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .chart-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 350px; 
+            max-height: 400px; 
+        }
+        @media (max-width: 640px) {
+            .chart-container { height: 300px; }
+        }
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #cbd5e1;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .active-tab {
+            border-bottom: 2px solid #ef4444;
+            color: #ef4444;
+            font-weight: 600;
+        }
+    </style>
+    <!-- Chosen Palette: Civil Security & Rescue Theme. Primary: Slate/Navy (Professionalism/Gendarmerie), Secondary: Red (Rescue/Firefighter), Background: Warm Neutral Light Gray. -->
+    <!-- Application Structure Plan: 
+         1. Header/Hero: Immediate identification of the candidate and the objective (Service Civique).
+         2. Dashboard Overview: Key metrics (Age, Contact) and Status.
+         3. Interactive Timeline (The Journey): Visualizing the logical progression from Military Training -> Service Civique -> Professional Firefighter goal. This turns the text's narrative into a visual flow.
+         4. Skills Analysis (The Asset): A Radar Chart to visualize the "Soft Skills" mentioned (Dynamism, Team Spirit, etc.) and a progress section for Hard Skills (PSC1, PSE1/2).
+         5. Motivations Explorer: Interactive cards that break down the dense paragraphs into digestible "Core Values" and "Missions".
+         6. Footer: Contact Action.
+         Why this structure? It transforms a linear letter into a multifaceted profile, allowing the recruiter to quickly assess technical readiness (Timeline) and personality fit (Skills/Motivations). -->
+    <!-- Visualization & Content Choices:
+         - Radar Chart (Chart.js): To visualize the candidate's self-assessed qualities (Dynamism, Seriousness, etc.). Goal: Inform/Relationships. Justification: Shows balance of character traits instantly.
+         - Timeline (HTML/Tailwind): To map the career path. Goal: Change/Context. Justification: Linear text is harder to parse for career progression than a vertical visual flow.
+         - Interactive Cards (JS Filtering): To group motivations into themes. Goal: Organize. Justification: Breaks down long text blocks into scannable insights.
+         - Confirmation: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="text-slate-800">
+
+    <!-- Navigation / Header -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <span class="text-2xl text-red-600 font-bold">⛑️</span>
+                        <span class="font-bold text-xl tracking-tight text-slate-900">Candidature<span class="text-red-600">.louis</span></span>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8 items-center">
+                    <button onclick="scrollToSection('profile')" class="text-slate-500 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Profil</button>
+                    <button onclick="scrollToSection('parcours')" class="text-slate-500 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Parcours</button>
+                    <button onclick="scrollToSection('competences')" class="text-slate-500 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Compétences</button>
+                    <button onclick="scrollToSection('motivations')" class="text-slate-500 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Motivations</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div id="profile" class="bg-white border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="flex-1 space-y-4">
+                <div class="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                    Candidature Service Civique
+                </div>
+                <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">Louis Lantonnet</h1>
+                <p class="text-lg text-slate-600 leading-relaxed">
+                    20 ans • Aix-en-Provence • Objectif : Sapeur-Pompier Professionnel
+                </p>
+                <p class="max-w-2xl text-slate-500">
+                    Candidature officielle à destination de l'association <strong>Sauveteurs Secouristes Aixois</strong>. 
+                    Une volonté de concrétiser des valeurs de solidarité et d'entraide au service de la population aixoise.
+                </p>
+                <div class="flex gap-4 pt-2">
+                    <button onclick="scrollToSection('contact')" class="bg-slate-900 text-white px-5 py-2.5 rounded-lg hover:bg-slate-800 transition shadow-lg font-medium">
+                        Me Contacter
+                    </button>
+                    <button onclick="scrollToSection('parcours')" class="bg-white text-slate-700 border border-slate-300 px-5 py-2.5 rounded-lg hover:bg-slate-50 transition font-medium">
+                        Voir mon parcours
+                    </button>
+                </div>
+            </div>
+            <!-- Quick Stats Card -->
+            <div class="w-full md:w-80 bg-slate-50 rounded-2xl p-6 border border-slate-100 shadow-sm">
+                <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Informations Clés</h3>
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm">📍</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-slate-500">Domicile</span>
+                            <span class="text-sm font-medium text-slate-900">Aix-en-Provence (13090)</span>
+                        </div>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-sm">🎓</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-slate-500">Formation</span>
+                            <span class="text-sm font-medium text-slate-900">Gendarmerie & PSC1</span>
+                        </div>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-sm">🎯</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-slate-500">Cible</span>
+                            <span class="text-sm font-medium text-slate-900">Eguilles</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+
+        <!-- Section: Parcours (Timeline) -->
+        <section id="parcours" class="scroll-mt-24">
+            <div class="max-w-3xl mx-auto text-center mb-10">
+                <h2 class="text-3xl font-bold text-slate-900">Trajectoire d'Engagement</h2>
+                <p class="mt-4 text-slate-600">
+                    Cette chronologie illustre la cohérence de mon parcours. De la rigueur militaire acquise en Gendarmerie à l'objectif final de Sapeur-Pompier, le Service Civique chez vous est l'étape charnière idéale.
+                </p>
+            </div>
+
+            <div class="relative py-8 max-w-4xl mx-auto">
+                <div class="timeline-line"></div>
+                
+                <!-- Item 1: Past -->
+                <div class="relative flex items-center justify-between mb-12 group">
+                    <div class="w-5/12 text-right pr-8">
+                        <h3 class="text-lg font-bold text-blue-900">Formation Militaire</h3>
+                        <p class="text-sm text-slate-500">Gendarmerie Nationale</p>
+                        <p class="mt-2 text-sm text-slate-600 bg-white p-3 rounded shadow-sm border border-slate-100 inline-block">
+                            Acquisition de la rigueur, de la discipline et du sens du service.
+                        </p>
+                    </div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-blue-600 border-4 border-white shadow flex items-center justify-center text-white text-xs">
+                        ✓
+                    </div>
+                    <div class="w-5/12 pl-8"></div>
+                </div>
+
+                <!-- Item 2: Past/Present -->
+                <div class="relative flex items-center justify-between mb-12 group">
+                    <div class="w-5/12"></div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-green-600 border-4 border-white shadow flex items-center justify-center text-white text-xs">
+                        ✓
+                    </div>
+                    <div class="w-5/12 pl-8">
+                        <h3 class="text-lg font-bold text-green-900">Obtention PSC1</h3>
+                        <p class="text-sm text-slate-500">Premiers Secours</p>
+                        <p class="mt-2 text-sm text-slate-600 bg-white p-3 rounded shadow-sm border border-slate-100 inline-block">
+                            Première marche validée vers le secourisme opérationnel.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 3: Target (Current Application) -->
+                <div class="relative flex items-center justify-between mb-12 group">
+                    <div class="w-5/12 text-right pr-8">
+                        <h3 class="text-xl font-bold text-red-600">Service Civique</h3>
+                        <p class="text-sm text-red-500 font-medium">Candidature en cours</p>
+                        <p class="mt-2 text-sm text-slate-600 bg-red-50 p-4 rounded-lg shadow-sm border border-red-100 inline-block">
+                            <strong>L'étape clé.</strong> Découverte de l'intérieur d'une structure de sécurité civile, sensibilisation du public et soutien logistique.
+                        </p>
+                    </div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full bg-red-600 border-4 border-white shadow-lg flex items-center justify-center text-white animate-pulse">
+                        📍
+                    </div>
+                    <div class="w-5/12 pl-8"></div>
+                </div>
+
+                <!-- Item 4: Future -->
+                <div class="relative flex items-center justify-between group opacity-70 hover:opacity-100 transition-opacity">
+                    <div class="w-5/12"></div>
+                    <div class="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 rounded-full bg-slate-300 border-4 border-white flex items-center justify-center text-white text-xs">
+                        ?
+                    </div>
+                    <div class="w-5/12 pl-8">
+                        <h3 class="text-lg font-bold text-slate-700">Sapeur-Pompier Pro</h3>
+                        <p class="text-sm text-slate-500">Objectif de Carrière</p>
+                        <p class="mt-2 text-sm text-slate-500 bg-slate-50 p-3 rounded shadow-sm border border-slate-100 inline-block">
+                            Vocation confirmée par les expériences précédentes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Compétences (Skills) -->
+        <section id="competences" class="bg-slate-50 rounded-3xl p-8 md:p-12 border border-slate-200 scroll-mt-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Chart Col -->
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 mb-2">Profil & Savoir-Être</h2>
+                    <p class="text-slate-600 mb-6">
+                        Visualisation de mes atouts comportementaux tels que décrits dans ma lettre. Je mise sur un équilibre entre l'action (dynamisme) et la rigueur (sérieux/ponctualité).
+                    </p>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                        <div class="chart-container">
+                            <canvas id="softSkillsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text/List Col -->
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="text-red-500">⚡</span> Soif d'apprendre
+                        </h3>
+                        <p class="text-slate-600 mt-2 text-sm leading-relaxed">
+                            Conscient de ne pas encore posséder toute l'expérience technique opérationnelle, ma motivation principale réside dans l'apprentissage. Je suis prêt à me former (PSE1, PSE2) à vos côtés.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <span class="text-blue-500">🛡️</span> Engagement Citoyen
+                        </h3>
+                        <p class="text-slate-600 mt-2 text-sm leading-relaxed">
+                            Mon parcours militaire et mon PSC1 ne sont pas des hasards : ils témoignent d'une volonté constante de servir l'intérêt général et la sécurité des personnes.
+                        </p>
+                    </div>
+
+                    <!-- Hard Skills Progress -->
+                    <div class="bg-white rounded-lg p-5 border border-slate-200">
+                        <h4 class="font-semibold text-slate-800 mb-4 text-sm uppercase tracking-wide">Certifications Secourisme</h4>
+                        
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-green-700">PSC1</span>
+                                <span class="text-green-700">Acquis ✅</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                <div class="bg-green-600 h-2.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-medium text-slate-600">PSE1 / PSE2</span>
+                                <span class="text-slate-500">Souhaité ⏳</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                <div class="bg-amber-400 h-2.5 rounded-full" style="width: 15%"></div>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1">Formation espérée durant le Service Civique</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Motivations Explorer -->
+        <section id="motivations" class="scroll-mt-24">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-3xl font-bold text-slate-900">Au Cœur de la Motivation</h2>
+                <p class="mt-4 text-slate-600">
+                    Pourquoi les Sauveteurs Secouristes Aixois ? Explorez les piliers de ma candidature en sélectionnant les thèmes ci-dessous.
+                </p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <button onclick="filterMotivations('all')" id="btn-all" class="motivation-filter px-4 py-2 rounded-full text-sm font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 transition active-tab">Tout voir</button>
+                <button onclick="filterMotivations('valeurs')" id="btn-valeurs" class="motivation-filter px-4 py-2 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-600 hover:border-red-300 transition">Valeurs</button>
+                <button onclick="filterMotivations('missions')" id="btn-missions" class="motivation-filter px-4 py-2 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-600 hover:border-red-300 transition">Missions</button>
+                <button onclick="filterMotivations('local')" id="btn-local" class="motivation-filter px-4 py-2 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-600 hover:border-red-300 transition">Ancrage Local</button>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="motivation-grid">
+                <!-- Content injected via JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer / Contact -->
+    <footer id="contact" class="bg-slate-900 text-white py-16">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-6">Prêt à m'engager</h2>
+            <p class="text-slate-300 mb-8 max-w-xl mx-auto">
+                Je serais ravi de pouvoir vous rencontrer lors d'un entretien pour vous exposer de vive voix ma motivation et discuter de la manière dont je pourrais contribuer au rayonnement de votre association.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center border-t border-slate-700 pt-8">
+                <div>
+                    <div class="text-2xl mb-2">📞</div>
+                    <div class="text-sm text-slate-400">Téléphone</div>
+                    <div class="font-semibold select-all">06 42 76 09 51</div>
+                </div>
+                <div>
+                    <div class="text-2xl mb-2">✉️</div>
+                    <div class="text-sm text-slate-400">Email</div>
+                    <div class="font-semibold select-all">louis.lantonnet@icloud.com</div>
+                </div>
+                <div>
+                    <div class="text-2xl mb-2">🏠</div>
+                    <div class="text-sm text-slate-400">Adresse</div>
+                    <div class="font-semibold">8 rue du Doyen Guyon<br>13090 Aix-en-Provence</div>
+                </div>
+            </div>
+
+            <div class="mt-12 text-slate-500 text-sm">
+                <p>Codé par Louis Lantonnet</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Data Store
+        const motivationsData = [
+            {
+                id: 1,
+                category: 'valeurs',
+                icon: '🤝',
+                title: 'Solidarité & Entraide',
+                text: 'Vos valeurs correspondent aux miennes. Je cherche un environnement où le collectif prime sur l\'individuel pour servir autrui.'
+            },
+            {
+                id: 2,
+                category: 'missions',
+                icon: '📢',
+                title: 'Sensibilisation',
+                text: 'Motivé par la transmission des savoirs : apprendre au public les gestes qui sauvent est une mission d\'utilité publique majeure.'
+            },
+            {
+                id: 3,
+                category: 'local',
+                icon: '🏙️',
+                title: 'Service à la population',
+                text: 'Désireux de m\'investir concrètement pour la population aixoise et ses alentours. Agir là où je vis.'
+            },
+            {
+                id: 4,
+                category: 'missions',
+                icon: '📦',
+                title: 'Soutien Logistique',
+                text: 'Prêt à aider sur le terrain lors de vos actions locales. Je suis conscient que la réussite d\'une mission passe aussi par la logistique.'
+            },
+            {
+                id: 5,
+                category: 'valeurs',
+                icon: '🪖',
+                title: 'Esprit de Corps',
+                text: 'Issu d\'une formation en Gendarmerie, je connais et j\'apprécie la rigueur et la cohésion nécessaires aux structures de sécurité.'
+            },
+            {
+                id: 6,
+                category: 'local',
+                icon: '🏢',
+                title: 'Structure Reconnue',
+                text: 'Le choix des Sauveteurs Secouristes Aixois est délibéré : votre reconnaissance locale en fait l\'environnement idéal pour mon projet.'
+            }
+        ];
+
+        // Chart Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Radar Chart for Soft Skills
+            const ctx = document.getElementById('softSkillsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Dynamisme', 'Esprit d\'équipe', 'Ponctualité', 'Sérieux', 'Volonté d\'apprendre', 'Rigueur'],
+                    datasets: [{
+                        label: 'Auto-évaluation',
+                        data: [9, 10, 10, 9, 10, 8],
+                        fill: true,
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)', // Red-500 with opacity
+                        borderColor: 'rgb(239, 68, 68)',
+                        pointBackgroundColor: 'rgb(239, 68, 68)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(239, 68, 68)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: { borderWidth: 3 }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: {
+                                font: { size: 12, family: 'Inter' },
+                                color: '#475569'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            ticks: { display: false } // Hide numbers on axis for cleaner look
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleFont: { family: 'Inter', size: 13 },
+                            bodyFont: { family: 'Inter', size: 13 },
+                            padding: 10,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    }
+                }
+            });
+
+            // Initial Render of Motivations
+            renderMotivations('all');
+        });
+
+        // Motivation Rendering Logic
+        function renderMotivations(filter) {
+            const grid = document.getElementById('motivation-grid');
+            grid.innerHTML = ''; // Clear current
+
+            const filtered = filter === 'all' 
+                ? motivationsData 
+                : motivationsData.filter(m => m.category === filter);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card-hover bg-white p-6 rounded-xl border border-slate-100 shadow-sm transition-all duration-300';
+                card.innerHTML = `
+                    <div class="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center text-2xl mb-4 border border-slate-100">
+                        ${item.icon}
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">${item.title}</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">${item.text}</p>
+                    <span class="inline-block mt-4 text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-500 uppercase tracking-wide">
+                        ${item.category}
+                    </span>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Update Buttons
+            document.querySelectorAll('.motivation-filter').forEach(btn => {
+                btn.classList.remove('active-tab', 'bg-slate-100');
+                btn.classList.add('bg-white');
+                if(btn.id === `btn-${filter}`) {
+                    btn.classList.add('active-tab', 'bg-slate-100');
+                    btn.classList.remove('bg-white');
+                }
+            });
+        }
+
+        function filterMotivations(category) {
+            renderMotivations(category);
+        }
+
+        // Smooth Scroll
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
